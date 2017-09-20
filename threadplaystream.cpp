@@ -5,27 +5,47 @@
 //extern MainWindow *w;
 
 
-threadPlayStream::threadPlayStream(QMutex* mu, QString url, QObject *parent) : QThread(){
+threadPlayStream::threadPlayStream(QMutex* mu, QString _url, QObject *parent) : QThread(){
 
     mutex = mu;
-    capture.open(url.toStdString());
+    url = _url;
 
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(captureImage()));
-    timer->start(50);
-    connectionStateNow = connectionStatePrev = false;
 }
 
 threadPlayStream::~threadPlayStream(){
+
     stopThread=true;
+}
+
+void threadPlayStream::connect2cam(){
+
+    if ( capture.open(url.toStdString()) )
+        emit connected();
+}
+
+void threadPlayStream::setFps(int fps){
+
+    targetFps = fps;
+    if (targetFps != 0)
+        timerPeriod = 1000.0 / targetFps;
+    else
+        timerPeriod = 0;
+}
+
+void threadPlayStream::startCapture(){
+
+    if (capture.isOpened()){
+        timer->start(timerPeriod);
+        connectionStateNow = connectionStatePrev = false;
+    }
 }
 
 void threadPlayStream::run(){
 
-    emit notConnected();
     //CvCapture *x =
-    //#undef TIME
-    //#define TIME 4
+    connect2cam();
 
     if (capture.isOpened()){
 
@@ -38,7 +58,7 @@ void threadPlayStream::run(){
                 if (connectionStateNow && !connectionStatePrev){
                     emit connected();
                     connectionStatePrev = connectionStateNow;
-                    qDebug() << "connected";
+                    //qDebug() << "connected";
                 }
 
                 if (frame.empty())
@@ -64,31 +84,38 @@ void threadPlayStream::run(){
                     emit imageCaptured();
                     //mutex->unlock();
                 }
+
             } else {
+
                 connectionStateNow = false;
                 if (!connectionStateNow && connectionStatePrev) {
                     emit notConnected();
                     connectionStatePrev = connectionStateNow;
-                    qDebug() << "not connected 1";
+                    //qDebug() << "not connected 1";
                 }
-                //qDebug() << "1";
             }
         }
     } else {
+
         connectionStateNow = false;
         if (!connectionStateNow && connectionStatePrev) {
             emit notConnected();
             connectionStatePrev = connectionStateNow;
-            qDebug() << "not connected 2";
+            //qDebug() << "not connected 2";
         }
-        qDebug() << "2";
     }
     //                    std::vector<uchar> buf(50000);
     //                    imencode(".jpg", frame, buf);
     //                    QImage *t = new  QImage((char*) &buf);
 }
 
+void threadPlayStream::stop(){
+
+   stopThread = false;
+}
+
 void threadPlayStream::captureImage(){
+
    captureFlag = true;
 }
 

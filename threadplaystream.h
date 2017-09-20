@@ -23,29 +23,41 @@ public:
     ~threadPlayStream();
 
     void run();
+    void stop();
+    void connect2cam();
+    void setFps(int fps);
+    void startCapture();
     QImage getImage();
 
     bool stopThread=false;
+    QString url;
     cv::VideoCapture capture;
+    cv::Mat dest;
+
     QTimer *timer;
+    int targetFps = 20;
+    int timerPeriod = 50;
     bool captureFlag = false;
+
     QImage buffer;
     QImage *bufferPtr;
     QList<QImage*> imgBuffer;
     int iter=0;
-    cv::Mat dest;
-
 
     bool connectionStatePrev, connectionStateNow;
 
-
 signals:
+
     imageCaptured();
     connected();
     notConnected();
+
 public slots:
+
     void captureImage();
+
 private:
+
     QMutex* mutex;
 };
 
