@@ -10,6 +10,8 @@ threadPlayStream::threadPlayStream(QMutex* mu, QString _url, QObject *parent) : 
     mutex = mu;
     url = _url;
 
+    connectionStateNow = connectionStatePrev = false;
+
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(captureImage()));
 }
@@ -21,8 +23,10 @@ threadPlayStream::~threadPlayStream(){
 
 void threadPlayStream::connect2cam(){
 
-    if ( capture.open(url.toStdString()) )
-        emit connected();
+    if ( capture.open(url.toStdString()) ){
+        //emit connected();
+    } else
+        emit notConnected();
 }
 
 void threadPlayStream::setFps(int fps){
@@ -38,16 +42,19 @@ void threadPlayStream::startCapture(){
 
     if (capture.isOpened()){
         timer->start(timerPeriod);
-        connectionStateNow = connectionStatePrev = false;
     }
 }
 
 void threadPlayStream::run(){
 
     //CvCapture *x =
+    connectionStateNow = connectionStatePrev = false;
+
     connect2cam();
 
     if (capture.isOpened()){
+
+        stopThread = false;
 
         while(!stopThread) {
 
@@ -61,25 +68,16 @@ void threadPlayStream::run(){
                     //qDebug() << "connected";
                 }
 
-                if (frame.empty())
-                    qDebug() << "empty";
+                //if (frame.empty()) qDebug() << "empty";
 
                 //qDebug() << frame.rows << "x" << frame.cols;
                 if (captureFlag) {
                     //mutex->lock();
-                    iter++;
+                    //iter++;
                     //cv::Mat dest;
+
                     cv::cvtColor(frame, dest, CV_BGR2RGB);
-                    //QImage *t = new  QImage( (uchar*) dest.data, dest.cols, dest.rows, dest.step, QImage::Format_RGB888 );
-                    //imgBuffer.append( t );
 
-                    //buffer = QImage( (const uchar*) dest.data, dest.cols, dest.rows, dest.step, QImage::Format_RGB888 );
-                    //buffer.save("x.jpg");
-                    //buffer.load("x.jpg");
-                    //QString file="x"+QString::number(iter)+".jpg";
-                    //imgBuffer.last()->save(file);
-
-                    //w->ui->label->setPixmap(QPixmap::fromImage(*imgBuffer.last()));
                     captureFlag = false;
                     emit imageCaptured();
                     //mutex->unlock();
@@ -96,17 +94,20 @@ void threadPlayStream::run(){
             }
         }
     } else {
-
-        connectionStateNow = false;
-        if (!connectionStateNow && connectionStatePrev) {
-            emit notConnected();
-            connectionStatePrev = connectionStateNow;
-            //qDebug() << "not connected 2";
-        }
     }
-    //                    std::vector<uchar> buf(50000);
-    //                    imencode(".jpg", frame, buf);
-    //                    QImage *t = new  QImage((char*) &buf);
+
+    /*QImage *t = new  QImage( (uchar*) dest.data, dest.cols, dest.rows, dest.step, QImage::Format_RGB888 );
+    imgBuffer.append( t );
+
+    buffer = QImage( (const uchar*) dest.data, dest.cols, dest.rows, dest.step, QImage::Format_RGB888 );
+    buffer.save("x.jpg");
+    buffer.load("x.jpg");
+    QString file="x"+QString::number(iter)+".jpg";
+    imgBuffer.last()->save(file);
+    w->ui->label->setPixmap(QPixmap::fromImage(*imgBuffer.last()));
+                        std::vector<uchar> buf(50000);
+                        imencode(".jpg", frame, buf);
+                        QImage *t = new  QImage((char*) &buf);*/
 }
 
 void threadPlayStream::stop(){
