@@ -64,7 +64,11 @@ void threadPlayStream::run(){
         while(!stopThread) {
 
             cv::Mat frame;
+
+            firstTimeTick = timeSystem.getSystemTimeMsec();
             if (capture.read(frame)){
+                //secondTimeTick = timeSystem.getSystemTimeMsec();
+                //tickDiff = secondTimeTick - firstTimeTick;
 
                 connectionStateNow = true;
                 if (connectionStateNow && !connectionStatePrev){
@@ -74,8 +78,8 @@ void threadPlayStream::run(){
                 }
 
                 //propFps = capture.get( cv::CAP_PROP_FPS );
-                propIris = capture.get( cv::CAP_PROP_IRIS );
-                propISO = capture.get( cv::CAP_PROP_ISO_SPEED );
+                //propIris = capture.get( cv::CAP_PROP_IRIS );
+                //propISO = capture.get( cv::CAP_PROP_ISO_SPEED );
                 if (measureFps) iter++;
 
                 //if (frame.empty()) qDebug() << "empty";
@@ -88,7 +92,7 @@ void threadPlayStream::run(){
                     cv::cvtColor(frame, dest, CV_BGR2RGB);
 
                     captureFlag = false;
-                    emit imageCaptured();
+                    emit imageCaptured(firstTimeTick);
                     //mutex->unlock();
                 }
 

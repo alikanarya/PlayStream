@@ -12,6 +12,7 @@
 #include <QList>
 #include <QMutex>
 #include <QMutexLocker>
+#include "../Getsystemtime/getsystemtime.h"
 
 class threadPlayStream : public QThread{
 
@@ -35,6 +36,10 @@ public:
     cv::VideoCapture capture;
     cv::Mat dest;
 
+    getSystemTime timeSystem;                   // system time class
+    int firstTimeTick, secondTimeTick;          // succesive system time instances
+    int tickDiff;                               // difference between 2 system times
+
     QTimer *timer;
     QTimer *timerFps;
     int targetFps = 20;
@@ -57,7 +62,7 @@ public:
 
 signals:
 
-    imageCaptured();
+    imageCaptured(int);
     connected();
     notConnected();
 
