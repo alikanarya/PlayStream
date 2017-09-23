@@ -27,6 +27,7 @@ public:
     void connect2cam();
     void setFps(int fps);
     void startCapture();
+    void measureFpsFn(int msec);
     QImage getImage();
 
     bool stopThread=false;
@@ -35,9 +36,13 @@ public:
     cv::Mat dest;
 
     QTimer *timer;
+    QTimer *timerFps;
     int targetFps = 20;
+    int realFps = 0;
     int timerPeriod = 50;
     bool captureFlag = false;
+    bool measureFps = false;
+    int measureFpsDuration = 0;
 
     QImage buffer;
     QImage *bufferPtr;
@@ -45,6 +50,10 @@ public:
     int iter=0;
 
     bool connectionStatePrev, connectionStateNow;
+
+    int propFps = -1;
+    int propIris = -1;
+    int propISO = -1;
 
 signals:
 
@@ -55,6 +64,7 @@ signals:
 public slots:
 
     void captureImage();
+    void measureFpsSlot();
 
 private:
 

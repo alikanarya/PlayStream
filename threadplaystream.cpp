@@ -14,6 +14,10 @@ threadPlayStream::threadPlayStream(QMutex* mu, QString _url, QObject *parent) : 
 
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(captureImage()));
+
+    timerFps = new QTimer(this);
+    connect(timerFps, SIGNAL(timeout()), this, SLOT(measureFpsSlot()));
+
 }
 
 threadPlayStream::~threadPlayStream(){
@@ -41,6 +45,7 @@ void threadPlayStream::setFps(int fps){
 void threadPlayStream::startCapture(){
 
     if (capture.isOpened()){
+        iter = 0;
         timer->start(timerPeriod);
     }
 }
@@ -68,12 +73,16 @@ void threadPlayStream::run(){
                     //qDebug() << "connected";
                 }
 
+                //propFps = capture.get( cv::CAP_PROP_FPS );
+                propIris = capture.get( cv::CAP_PROP_IRIS );
+                propISO = capture.get( cv::CAP_PROP_ISO_SPEED );
+                if (measureFps) iter++;
+
                 //if (frame.empty()) qDebug() << "empty";
 
                 //qDebug() << frame.rows << "x" << frame.cols;
                 if (captureFlag) {
                     //mutex->lock();
-                    //iter++;
                     //cv::Mat dest;
 
                     cv::cvtColor(frame, dest, CV_BGR2RGB);
@@ -118,6 +127,33 @@ void threadPlayStream::stop(){
 void threadPlayStream::captureImage(){
 
    captureFlag = true;
+}
+
+void threadPlayStream::measureFpsFn(int msec){
+
+    iter = 0;
+    measureFpsDuration = msec;
+    if (measureFpsDuration == 0) {
+        if (timerFps->isActive()) timerFps->stop();
+        measureFps = false;
+    } else {
+        timerFps->start(msec);
+        measureFps = true;
+    }
+}
+
+void threadPlayStream::measureFpsSlot(){
+
+    if (measureFpsDuration != 0) {
+        realFps = iter * 1000.0/ measureFpsDuration;
+        iter = 0;
+    } else
+        realFps = -1;
+
+    if (!this->isRunning()) {
+        measureFps = false;
+        timerFps->stop();
+    }
 }
 
 QImage threadPlayStream::getImage() {
