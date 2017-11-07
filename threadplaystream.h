@@ -32,9 +32,11 @@ public:
     QImage getImage();
 
     bool stopThread=false;
+    bool starting = false;
     QString url;
     cv::VideoCapture capture;
     cv::Mat dest;
+    bool debugMsg = false;
 
     getSystemTime timeSystem;                   // system time class
     int firstTimeTick, secondTimeTick;          // succesive system time instances

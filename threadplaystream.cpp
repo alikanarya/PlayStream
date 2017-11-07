@@ -53,28 +53,38 @@ void threadPlayStream::startCapture(){
 void threadPlayStream::run(){
 
     //CvCapture *x =
+    starting = true;
+    debugMsg = false;
+
     connectionStateNow = connectionStatePrev = false;
 
     connect2cam();
 
     if (capture.isOpened()){
 
+        if (debugMsg) qDebug() << "stream opened";
+
         stopThread = false;
 
         while(!stopThread) {
 
+
             cv::Mat frame;
 
             firstTimeTick = timeSystem.getSystemTimeMsec();
+
             if (capture.read(frame)){
                 //secondTimeTick = timeSystem.getSystemTimeMsec();
                 //tickDiff = secondTimeTick - firstTimeTick;
 
+                if (debugMsg) qDebug() << "stream read";
+
                 connectionStateNow = true;
                 if (connectionStateNow && !connectionStatePrev){
+                    starting = false;
                     emit connected();
                     connectionStatePrev = connectionStateNow;
-                    //qDebug() << "connected";
+                    if (debugMsg) qDebug() << "connected";
                 }
 
                 //propFps = capture.get( cv::CAP_PROP_FPS );
@@ -99,14 +109,16 @@ void threadPlayStream::run(){
             } else {
 
                 connectionStateNow = false;
-                if (!connectionStateNow && connectionStatePrev) {
+                if (!connectionStateNow && connectionStatePrev || starting) {
+                    starting = false;
                     emit notConnected();
                     connectionStatePrev = connectionStateNow;
-                    //qDebug() << "not connected 1";
+                    if (debugMsg) qDebug() << "not connected 1";
                 }
             }
         }
     } else {
+        if (debugMsg) qDebug() << "stream cant opened";
     }
 
     /*QImage *t = new  QImage( (uchar*) dest.data, dest.cols, dest.rows, dest.step, QImage::Format_RGB888 );
