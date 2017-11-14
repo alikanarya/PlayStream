@@ -98,7 +98,7 @@ void threadPlayStream::run(){
                 //if (frame.empty()) qDebug() << "empty";
 
                 //qDebug() << frame.rows << "x" << frame.cols;
-                if (captureFlag) {
+                //if (captureFlag) {
                     //mutex->lock();
                     //cv::Mat dest;
 
@@ -109,13 +109,13 @@ void threadPlayStream::run(){
                         frameBufferReady = true;
 
                     frameBuffer.append(frame);
-                    if (frameBufferIter == frameBufferSize)
-                        frameBuffer.removeFirst();
 
                     captureFlag = false;
                     if (frameBufferReady) emit imageCaptured(firstTimeTick);
+
+                    //if (frameBufferIter == frameBufferSize) frameBuffer.removeFirst();
                     //mutex->unlock();
-                }
+                //}
 
             } else {
 

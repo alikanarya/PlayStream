@@ -38,7 +38,7 @@ public:
     //cv::Mat frame;
     cv::Mat dest;
     QList<cv::Mat> frameBuffer;
-    int frameBufferSize = 10;
+    int frameBufferSize = 3;
     int frameBufferIter = 0;
     bool frameBufferReady = false;
     bool debugMsg = false;
