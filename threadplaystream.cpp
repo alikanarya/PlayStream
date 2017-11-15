@@ -97,7 +97,7 @@ void threadPlayStream::run(){
 
                 //if (frame.empty()) qDebug() << "empty";
 
-                //qDebug() << frame.rows << "x" << frame.cols;
+                qDebug() << frame.rows << "x" << frame.cols;
                 //if (captureFlag) {
                     //mutex->lock();
                     //cv::Mat dest;
