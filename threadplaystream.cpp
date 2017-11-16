@@ -55,9 +55,12 @@ void threadPlayStream::run(){
     //CvCapture *x =
     starting = true;
     debugMsg = false;
+
+    /* delay buffer code
     frameBufferIter = 0;
     frameBufferReady = false;
     frameBuffer.clear();
+    */
 
     connectionStateNow = connectionStatePrev = false;
 
@@ -71,7 +74,7 @@ void threadPlayStream::run(){
 
         while(!stopThread) {
 
-           cv::Mat frame;
+            //cv::Mat frame;
 
             firstTimeTick = timeSystem.getSystemTimeMsec();
 
@@ -96,24 +99,29 @@ void threadPlayStream::run(){
                 if (measureFps) iter++;
 
                 //if (frame.empty()) qDebug() << "empty";
+                //qDebug() << frame.rows << "x" << frame.cols;
 
-                qDebug() << frame.rows << "x" << frame.cols;
                 //if (captureFlag) {
                     //mutex->lock();
-                    //cv::Mat dest;
 
-// **                   cv::cvtColor(frame, dest, CV_BGR2RGB);
+                    /*
+                    cv::Mat dest;
+                    cv::cvtColor(frame, dest, CV_BGR2RGB);
+                    */
+                    /* delay buffer code
                     if (frameBufferIter < frameBufferSize)
                         frameBufferIter++;
                     else
                         frameBufferReady = true;
-
-                    frameBuffer.append(frame);
-
-                    captureFlag = false;
+                    frameBuffer.append(&frame);
+                    if (frameBufferIter == frameBufferSize) frameBuffer.removeFirst();
                     if (frameBufferReady) emit imageCaptured(firstTimeTick);
+                    */
 
-                    //if (frameBufferIter == frameBufferSize) frameBuffer.removeFirst();
+                    //captureFlag = false;
+
+                    emit imageCaptured(firstTimeTick);
+
                     //mutex->unlock();
                 //}
 

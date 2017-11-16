@@ -35,12 +35,14 @@ public:
     bool starting = false;
     QString url;
     cv::VideoCapture capture;
-    //cv::Mat frame;
+    cv::Mat frame;
     cv::Mat dest;
+    /* delay buffer list vars
     QList<cv::Mat> frameBuffer;
     int frameBufferSize = 3;
     int frameBufferIter = 0;
     bool frameBufferReady = false;
+    */
     bool debugMsg = false;
 
     getSystemTime timeSystem;                   // system time class
