@@ -104,10 +104,6 @@ void threadPlayStream::run(){
                 //if (captureFlag) {
                     //mutex->lock();
 
-                    /*
-                    cv::Mat dest;
-                    cv::cvtColor(frame, dest, CV_BGR2RGB);
-                    */
                     /* delay buffer code
                     if (frameBufferIter < frameBufferSize)
                         frameBufferIter++;
@@ -120,6 +116,7 @@ void threadPlayStream::run(){
 
                     //captureFlag = false;
 
+                    cv::cvtColor(frame, dest, CV_BGR2RGB);
                     emit imageCaptured(firstTimeTick);
 
                     //mutex->unlock();
