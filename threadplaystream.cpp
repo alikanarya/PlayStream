@@ -119,6 +119,10 @@ void threadPlayStream::run(){
                     cv::cvtColor(frame, dest, CV_BGR2RGB);
                     emit imageCaptured(firstTimeTick);
 
+                    mMutex.lock();
+                    condition.wait(&mMutex, 100);
+                    mMutex.unlock();
+
                     //mutex->unlock();
                 //}
 

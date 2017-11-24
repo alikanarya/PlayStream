@@ -12,6 +12,8 @@
 #include <QList>
 #include <QMutex>
 #include <QMutexLocker>
+#include <QWaitCondition>
+
 #include "../Getsystemtime/getsystemtime.h"
 
 class threadPlayStream : public QThread{
@@ -69,6 +71,8 @@ public:
     int propIris = -1;
     int propISO = -1;
 
+    QWaitCondition condition;
+
 signals:
 
     imageCaptured(int);
@@ -83,6 +87,7 @@ public slots:
 private:
 
     QMutex* mutex;
+    QMutex mMutex;
 };
 
 #endif // THREADPLAYSTREAM_H
